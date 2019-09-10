@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Histórico de conversas</title>
+    <meta charset="UTF-8">
+    <title>Visualizador de conversas</title>
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="custom.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <script src="functions.js"></script>
+</head>
+
+<body style="background: #eaeeee">
+
+    <div class="rectangle-main">
+        <img class="main-logo" src="images/logo-BLiP.png"></img>
+        <p class="main-title">Visualizador de conversas</p>
+        <p class="main-subtitle">Encontre e exporte o histórico de conversas de seus contatos</p>
+        <center>
+            <label class="label-input" for="token">Token do bot</label><br>
+            <input class="form-input" onkeyup="stoppedTyping(this)" type="text" id="token" name="token" placeholder="Ex.: 4tcvr8q4a6nypaq7">
+            <button class="bp-btn bp-btn--blip-dark" disabled id="b-visualizar" onclick="getInfo()">Visualizar</button>
+            <br><br><br>
+    </div>
+
+
+    <br><br><br>
+    <div id="example-table"></div>
+    <table class="test-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Nome</th>
+                <th>Canal</th>
+                <th>Id</th>
+                <th>Data início</th>
+                <th>Data final</th>
+              </tr>
+            </thead>
+          
+            <tbody id="data">
+            </tbody>
+                </table>
+    </center>
+</body>
+
+</html>
