@@ -172,7 +172,7 @@ function exportCsv(selectedRows) {
     link.setAttribute("download", "threads-" + data[0].ownerIdentity + ".csv");
     document.body.appendChild(link); // Required for FF
 
-    //link.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
+    link.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
 }
 
 //Pega sa linhas da tabela que forma selecionadas
