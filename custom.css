@@ -223,7 +223,7 @@
 
 .bp-btn:disabled {
   cursor: default;
-  background-color: gray; 
+  background-color: gray;
 }
 
 .bp-btn.bp-btn--arrow {
@@ -5756,6 +5756,9 @@
   border-collapse: collapse;
   border-spacing: 0;
   cursor: default;
+  text-align: center;
+  align-items: center;
+  margin: auto;
 }
 
 .bp-table-chart table thead,
@@ -7868,7 +7871,7 @@
   margin-top: 10px;
 }
 
-.form-input {
+.input-token {
   border: 1px solid #d2dfe6;
   box-sizing: border-box;
   font-size: 0.75rem;
@@ -7878,7 +7881,7 @@
   text-align: center;
 }
 
-.form-input::placeholder {
+.input-token::placeholder {
   font-family: Nunito Sans;
   font-style: normal;
   font-weight: normal;
@@ -7888,10 +7891,95 @@
   color: #8ca0b3;
 }
 
-.label-input {
-    margin-left: -35%;
-    font-family: Nunito Sans;
-    font-style: normal;
-    font-weight: 200;
-    color: #ffffff;
+.label-token {
+  margin-left: -35%;
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 200;
+  color: #ffffff;
+}
+
+.form-date {
+  text-align: center;
+}
+
+.input-date:nth-of-type(1) {
+  border: 1px solid #d2dfe6;
+  box-sizing: border-box;
+  font-size: 1rem;
+  color: #8ca0b3;
+  background-color: #ffffff;
+  padding: 12px 20px 13px 40px;
+  width: 16%;
+  text-align: center;
+  margin-right: 2%;
+}
+
+.input-date:nth-of-type(2) {
+  border: 1px solid #d2dfe6;
+  box-sizing: border-box;
+  font-size: 1rem;
+  color: #8ca0b3;
+  background-color: #ffffff;
+  padding: 12px 20px 13px 40px;
+  width: 16%;
+  text-align: center;
+  margin-left: 2%;
+  margin-right: 2%;
+}
+
+.export-button {
+  width: 87%;
+  margin-top: 30px;
+  margin-bottom: 30px;
+  text-align: right;
+}
+
+body {
+  display: block;
+  margin: 0px;
+  margin-top: 0px;
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+}
+
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: 0px 0 0 -50px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+#page-content {
+  display: none;
+  text-align: center;
 }

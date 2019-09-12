@@ -12,38 +12,58 @@
     <script src="functions.js"></script>
 </head>
 
-<body style="background: #eaeeee">
+<body>
 
     <div class="rectangle-main">
         <img class="main-logo" src="images/logo-BLiP.png"></img>
         <p class="main-title">Visualizador de conversas</p>
         <p class="main-subtitle">Encontre e exporte o histórico de conversas de seus contatos</p>
         <center>
-            <label class="label-input" for="token">Token do bot</label><br>
-            <input class="form-input" onkeyup="stoppedTyping(this)" type="text" id="token" name="token" placeholder="Ex.: 4tcvr8q4a6nypaq7">
+            <label class="label-token" for="token">Token do bot</label><br>
+            <input class="input-token" required onkeyup="stoppedTyping(this)" type="text" id="token" name="token"
+                placeholder="Ex.: 4tcvr8q4a6nypaq7">
             <button class="bp-btn bp-btn--blip-dark" disabled id="b-visualizar" onclick="getInfo()">Visualizar</button>
             <br><br><br>
     </div>
 
+    <div id="loader" style="display: none"></div>
 
-    <br><br><br>
-    <div id="example-table"></div>
-    <table class="test-table">
+    <div style="display:none;" id="page-content">
+
+        <div class="form-date" style="display: none;">
+            <h3>Filtrar por data</h3>
+            <input type="date" class="input-date" id="initial" name="initial">
+            a
+            <input type="date" class="input-date" id="final" name="final">
+            <button class="bp-btn bp-btn--blip-light bp-btn--small" id="b-filtrar">Filtrar</button>
+        </div>
+
+        <table class="bp-table" id="bp-table" style="display: none">
             <thead>
-              <tr>
-                <th></th>
-                <th>Nome</th>
-                <th>Canal</th>
-                <th>Id</th>
-                <th>Data início</th>
-                <th>Data final</th>
-              </tr>
+                <tr>
+                    <th class="tl"></th>
+                    <th class="tc"><b>Nome</b></th>
+                    <th class="tr"><b>Canal</b></th>
+                    <th class="tl"><b>Identificador</b></th>
+                    <th class="tc"><b>Data</b></th>
+                    <th class="tl"> <label class="bp-input--check--wrapper mb4">
+                            <input class="bp-input" type="checkbox" onClick="toggle(this)" name="checkbox-all">
+                            <div class="bp-input--checkbox">&check;</div>
+                        </label>
+                    </th>
+                </tr>
             </thead>
-          
+
             <tbody id="data">
             </tbody>
-                </table>
-    </center>
+        </table>
+        </center>
+
+        <div class="export-button">
+            <button class="bp-btn bp-btn--true" id="b-exportar" style="display: none;">Exportar</button>
+        </div>
+    </div>
+
 </body>
 
 </html>
