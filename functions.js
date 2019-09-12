@@ -1,5 +1,6 @@
 var lastDate;
 var dates = [];
+var data; 
 //Request 
 function getInfo() {
     document.getElementById("loader").style.display = "block";
@@ -17,7 +18,7 @@ function getInfo() {
             'Content-Type': 'application/json'
         }
     }).then(function (response) {
-        let data = response.data.resource.items; //armazena apenas as threads
+        data = response.data.resource.items; //armazena apenas as threads
         data = data.sort(function (a, b) { //ordena por data
             return new Date(b.lastMessage.date) - new Date(a.lastMessage.date);
         });
@@ -85,7 +86,7 @@ function createTable(user, i) {
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
-            "<input class='bp-input' type='checkbox' name='checkbox-group' value='2'>" +
+            "<input class='bp-input' type='checkbox' onchange='enableExport()' name='checkbox-group' value=data.identity>" +
             "<div class='bp-input--checkbox'>&check;</div>" +
             "</label>";
     }
@@ -93,17 +94,20 @@ function createTable(user, i) {
     document.getElementById("page-content").style.display = "block";
     document.getElementById('bp-table').style.display = "table";
     document.getElementById('b-exportar').style.display = "initial";
+    document.getElementById('b-exportar').disabled = true;
     document.getElementsByClassName('form-date')[0].style.display = "block";
 }
 
-
-function toggle(source) { //seleciona todos os checkboxes ao clicar no principal
+//seleciona todos os checkboxes ao clicar no principal
+function toggle(source) { 
     checkboxes = document.getElementsByName('checkbox-group');
     for (var i = 0, n = checkboxes.length; i < n; i++) {
         checkboxes[i].checked = source.checked;
     }
+    enableExport();
 }
 
+//formata a data para o padrao brasileiro
 function createDate(lastDate) {
     var dd = lastDate.getDate();
     var mm = lastDate.getMonth() + 1; //January is 0!
@@ -120,6 +124,7 @@ function createDate(lastDate) {
     return dates;
 }
 
+//habilita ou desabilita o botao de visualizar caso haja ou nao um token no input
 function stoppedTyping(input) {
     if (input.value.length > 0) {
         document.getElementById('b-visualizar').disabled = false;
@@ -127,3 +132,14 @@ function stoppedTyping(input) {
         document.getElementById('b-visualizar').disabled = true;
     }
 }
+
+function enableExport() { //habilita e desabilita o botão de exportar caso haja pelo menos um checkbox selecionado
+    var checkboxes = document.getElementsByName('checkbox-group');
+    var checkedOne = Array.prototype.slice.call(checkboxes).some(x => x.checked); 
+    if (checkedOne) {
+        document.getElementById('b-exportar').disabled = false;
+    }else{
+        document.getElementById('b-exportar').disabled = true;
+        document.getElementsByName('checkbox-all')[0].checked = false;
+    }
+  }
