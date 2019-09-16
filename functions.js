@@ -1,11 +1,12 @@
 var lastDate;
 var dates = [];
 var data;
-var token; 
-//Request 
+var token;
+
+//Requisicao 
 function getInfo() {
     document.getElementById("loader").style.display = "block";
-    let token = document.getElementById('token').value;
+    token = document.getElementById('token').value;
     var input = document.getElementById('token');
     input.value = "";
     stoppedTyping(input);
@@ -23,21 +24,32 @@ function getInfo() {
         data = data.sort(function (a, b) { //ordena por data
             return new Date(b.lastMessage.date) - new Date(a.lastMessage.date);
         });
-        separateThreads(data, token); //Chama a funcao para criar a tabela
-    });
+        separateThreads(data); //Chama a funcao para criar a tabela
+    })
+        //Retorna uma mensagem de erro caso a requisicao esteja errada
+        .catch(function (error) {
+            if (error.response) {
+                document.getElementById("loader").style.display = "none";
+                alert("Token inserido é inválido!");
+            } else if (error.request) {
+                console.log(error.request);
+            } else {
+                console.log('Error', error.message);
+            }
+        });
 }
 
 //Analisa cada thread separadamente e cruza as informacoes para receber os dados do contato
-function separateThreads(data, token) {
+function separateThreads(data) {
     for (var i = 0; i < data.length; i++) {
         lastDate = new Date(data[i].lastMessage.date);
         createDate(lastDate);
-        getUserInfoToCreateTable(data[i].identity, token, i);
+        getUserInfoToCreateTable(data[i].identity, i);
     }
 }
 
 //chama a Extensao Contacts para pegar dados do Contato e criar uma tabela
-function getUserInfoToCreateTable(user, token, i) {
+function getUserInfoToCreateTable(user, i) {
     axios.post('https://msging.net/commands', {
         id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
         method: "get",
@@ -56,10 +68,12 @@ function getUserInfoToCreateTable(user, token, i) {
     });
 }
 
+//Cria a tabela, remove o "loading" e faz os componentes aparecerem na tela
 function createTable(user, i) {
     var tr, td;
     var tbody = document.getElementById("data");
-    tr = tbody.insertRow(tbody.rows.length);
+    tr = tbody.insertRow(-1);
+    tr.className = 'tr-animated';
     td = tr.insertCell(tr.cells.length);
     if (user) {
         if (user.photoUri) {
@@ -91,6 +105,7 @@ function createTable(user, i) {
             "<input class='bp-input' type='checkbox' onchange='enableExport()' name='checkbox-group' value=" + data[i].identity + ">" +
             "<div class='bp-input--checkbox'>&check;</div>" +
             "</label>";
+        
     }
     document.getElementById("loader").style.display = "none";
     document.getElementById("page-content").style.display = "block";
@@ -98,7 +113,14 @@ function createTable(user, i) {
     document.getElementById('b-exportar').style.display = "initial";
     document.getElementById('b-exportar').disabled = true;
     document.getElementsByClassName('form-date')[0].style.display = "block";
+    
 }
+
+function openHistory(){
+    console.log("Olá");
+}
+
+
 
 //seleciona todos os checkboxes ao clicar no principal
 function toggle(source) {
@@ -147,26 +169,30 @@ function enableExport() {
     }
 }
 
-function exportCsv(selectedRows) {
+function exportCsv() {
     var checked = getElementsSelecteds();
-    console.log("passei");
-    const rows = [
+    const rowsThreads = [
         ["ID do usuário", "Canal"]
     ];
 
-    checked.forEach(function (item, index) {
-        rows[index + 1] = [];
-        rows[index + 1].push(item); //id do usuario
-        rows[index + 1].push("BLiP Chat");
+    checked.forEach(function (userId, index) {
+        rowsThreads[index + 1] = [];
+        rowsThreads[index + 1].push(userId); //id do usuario
+        rowsThreads[index + 1].push(getUserSource(userId)); //canal do usuario
     });
-    console.log(rows);
-    let csvContent = "data:text/csv;charset=utf-8,";
 
-    rows.forEach(function (rowArray) {
+    let csvThreads = "data:text/csv;charset=utf-8,";
+    let csvHistory = "data:text/csv;charset=utf-8,";
+
+    rowsThreads.forEach(function (rowArray) {
         let row = rowArray.join(",");
-        csvContent += row + "\r\n";
+        csvThreads += row + "\r\n";
     });
-    var encodedUri = encodeURI(csvContent);
+    /* var nameThreadsFile = "threads-" + data[0].ownerIdentity + ".csv";
+    var nameHistoryFile = "history-" + data[0].ownerIdentity + ".csv";
+    create_zip(); */
+
+    var encodedUri = encodeURI(csvThreads);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
     link.setAttribute("download", "threads-" + data[0].ownerIdentity + ".csv");
@@ -175,7 +201,7 @@ function exportCsv(selectedRows) {
     link.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
 }
 
-//Pega sa linhas da tabela que forma selecionadas
+//Pega as linhas da tabela que foram selecionadas
 function getElementsSelecteds() {
     var checkedValue = [];
     var checkedElements = document.getElementsByName('checkbox-group');
@@ -187,8 +213,8 @@ function getElementsSelecteds() {
     return checkedValue;
 }
 
-function getUserInfo(user, token) {
-    axios.post('https://msging.net/commands', {
+function getUserInfo(userId) {
+    return axios.post('https://msging.net/commands', {
         id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
         method: "get",
         uri: "/contacts/" + user
@@ -197,11 +223,25 @@ function getUserInfo(user, token) {
             'Authorization': token,
             'Content-Type': 'application/json'
         }
-    }).then(function (response) {
-        if (response.data.status == "failure") {
-        } else {
-            let user = response.data.resource;
-            createTable(user, i);
-        }
     });
+}
+
+function create_zip() {
+    var zip = new JSZip();
+    zip.add("hello1.txt", "Hello First World\n");
+    zip.add("hello2.txt", "Hello Second World\n");
+    content = zip.generate();
+    location.href = "data:application/zip;base64," + content;
+}
+
+function getUserSource(userId){
+    var source = userId.split("@"); 
+    var channel = source[1].split(".");
+    var userChannel = channel[0].charAt(0).toUpperCase() + 
+    channel[0].slice(1);
+        if (userChannel == "0mn"){
+            return "BLiP Chat";
+        }else{
+            return userChannel;
+        }
 }
