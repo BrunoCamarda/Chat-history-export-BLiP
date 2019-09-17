@@ -2,7 +2,6 @@ var lastDate;
 var dates = [];
 var data;
 var token;
-
 //Requisicao 
 function getInfo() {
     document.getElementById("loader").style.display = "block";
@@ -73,7 +72,6 @@ function createTable(user, i) {
     var tr, td;
     var tbody = document.getElementById("data");
     tr = tbody.insertRow(-1);
-    tr.className = 'tr-animated';
     td = tr.insertCell(tr.cells.length);
     if (user) {
         if (user.photoUri) {
@@ -99,13 +97,15 @@ function createTable(user, i) {
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = dates[i];
 
+        td = tr.insertCell(tr.cells.length);
+        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id="+data[i].identity +" onClick='openHistory(this)'>Ver</button>";
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
             "<input class='bp-input' type='checkbox' onchange='enableExport()' name='checkbox-group' value=" + data[i].identity + ">" +
             "<div class='bp-input--checkbox'>&check;</div>" +
             "</label>";
-        
+  
     }
     document.getElementById("loader").style.display = "none";
     document.getElementById("page-content").style.display = "block";
@@ -113,11 +113,10 @@ function createTable(user, i) {
     document.getElementById('b-exportar').style.display = "initial";
     document.getElementById('b-exportar').disabled = true;
     document.getElementsByClassName('form-date')[0].style.display = "block";
-    
 }
 
-function openHistory(){
-    console.log("Olá");
+function openHistory(item){
+    console.log(item.id);
 }
 
 
@@ -143,7 +142,7 @@ function createDate(lastDate) {
     if (mm < 10) {
         mm = '0' + mm;
     }
-    var formatedDate = dd + '/' + mm + '/' + yyyy;
+    var formatedDate = mm + '/' + dd + '/' + yyyy;
     dates.push(formatedDate);
     return dates;
 }
@@ -217,7 +216,7 @@ function getUserInfo(userId) {
     return axios.post('https://msging.net/commands', {
         id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
         method: "get",
-        uri: "/contacts/" + user
+        uri: "/contacts/" + userId
     }, {
         headers: {
             'Authorization': token,
@@ -244,4 +243,32 @@ function getUserSource(userId){
         }else{
             return userChannel;
         }
+}
+
+
+function filter() {
+  // Declare variables
+  var initialDate, finalDate, table, tr, td, i, txtValue;
+  initialDate = document.getElementById("initial").value;
+  finalDate = document.getElementById("final").value;
+  initialDate = new Date(initialDate).getTime();
+  finalDate = new Date(finalDate).getTime();
+  table = document.getElementById("bp-table");
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[4];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      console.log(txtValue);
+      txtValue = new Date(txtValue).getTime();
+      console.log(txtValue);
+      if ((txtValue > initialDate) && (txtValue < finalDate)) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
 }

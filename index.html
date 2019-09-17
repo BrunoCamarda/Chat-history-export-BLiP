@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="custom.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
     <script type="text/javascript" 
-		src="https://unpkg.com/browse/jszip@3.1.5/dist/jszip.js"></script>
+        src="https://unpkg.com/browse/jszip@3.1.5/dist/jszip.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/blip-cards@1.55.11/dist/blip-cards.js"></script>
     <script src="functions.js"></script>
 </head>
 
@@ -37,7 +39,7 @@
             <input type="date" class="input-date" id="initial" name="initial">
             a
             <input type="date" class="input-date" id="final" name="final">
-            <button class="bp-btn bp-btn--blip-light bp-btn--small" id="b-filtrar">Filtrar</button>
+            <button class="bp-btn bp-btn--blip-light bp-btn--small" id="b-filtrar" onclick="filter()">Filtrar</button>
         </div>
 
         <table class="bp-table" id="bp-table" style="display: none">
@@ -48,11 +50,12 @@
                     <th class="tr"><b>Canal</b></th>
                     <th class="tl"><b>Identificador</b></th>
                     <th class="tc"><b>Data</b></th>
+                    <th class="tl"><b>Ações</b></th>
                     <th class="tr"> <label class="bp-input--check--wrapper mb4">
-                            <input class="bp-input" type="checkbox" onClick="toggle(this)" name="checkbox-all">
-                            <div class="bp-input--checkbox">&check;</div>
-                        </label>
-                    </th>
+                        <br><input class="bp-input" type="checkbox" onClick="toggle(this)" name="checkbox-all">
+                        <div class="bp-input--checkbox">&check;</div>
+                    </label>
+                </th>
                 </tr>
             </thead>
 
