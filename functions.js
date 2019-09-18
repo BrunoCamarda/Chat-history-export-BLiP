@@ -2,6 +2,7 @@ var lastDate;
 var dates = [];
 var data;
 var token;
+var rowPosition = 0;
 //Requisicao 
 function getInfo() {
     document.getElementById("loader").style.display = "block";
@@ -98,14 +99,14 @@ function createTable(user, i) {
         td.innerHTML = dates[i];
 
         td = tr.insertCell(tr.cells.length);
-        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id="+data[i].identity +" onClick='openHistory(this)'>Ver</button>";
+        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>Ver</button>";
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
             "<input class='bp-input' type='checkbox' onchange='enableExport()' name='checkbox-group' value=" + data[i].identity + ">" +
             "<div class='bp-input--checkbox'>&check;</div>" +
             "</label>";
-  
+
     }
     document.getElementById("loader").style.display = "none";
     document.getElementById("page-content").style.display = "block";
@@ -115,7 +116,7 @@ function createTable(user, i) {
     document.getElementsByClassName('form-date')[0].style.display = "block";
 }
 
-function openHistory(item){
+function openHistory(item) {
     console.log(item.id);
 }
 
@@ -142,7 +143,7 @@ function createDate(lastDate) {
     if (mm < 10) {
         mm = '0' + mm;
     }
-    var formatedDate = mm + '/' + dd + '/' + yyyy;
+    var formatedDate = dd + '/' + mm + '/' + yyyy;
     dates.push(formatedDate);
     return dates;
 }
@@ -173,31 +174,57 @@ function exportCsv() {
     const rowsThreads = [
         ["ID do usuário", "Canal"]
     ];
+    const rowsHistory = [
+        ["Id do usuário", "Id da mensagem", "Direção", "Data", "Tipo", "Conteúdo"]
+    ];
 
     checked.forEach(function (userId, index) {
+        //arquivo de threads
         rowsThreads[index + 1] = [];
         rowsThreads[index + 1].push(userId); //id do usuario
         rowsThreads[index + 1].push(getUserSource(userId)); //canal do usuario
+
+        //arquivo de historico
+        getUserMessages(userId).then(function (response) {
+            rowsHistory[rowPosition + 1] = [];
+            rowsHistory[rowPosition + 1].push(userId);
+            response.data.resource.items.forEach(function (message) {
+                rowsHistory[rowPosition + 1].push(message.id);
+                rowsHistory[rowPosition + 1].push(message.direction);
+                rowsHistory[rowPosition + 1].push(message.date);
+                rowsHistory[rowPosition + 1].push(message.type);
+                rowsHistory[rowPosition + 1].push(message.content);
+                rowPosition++;
+                rowsHistory[rowPosition + 1] = [];
+            });
+        });
     });
 
     let csvThreads = "data:text/csv;charset=utf-8,";
     let csvHistory = "data:text/csv;charset=utf-8,";
 
     rowsThreads.forEach(function (rowArray) {
-        let row = rowArray.join(",");
-        csvThreads += row + "\r\n";
+        var rowThread = rowArray.join(",");
+        csvThreads += rowThread + "\r\n";
     });
-    /* var nameThreadsFile = "threads-" + data[0].ownerIdentity + ".csv";
-    var nameHistoryFile = "history-" + data[0].ownerIdentity + ".csv";
-    create_zip(); */
 
-    var encodedUri = encodeURI(csvThreads);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "threads-" + data[0].ownerIdentity + ".csv");
-    document.body.appendChild(link); // Required for FF
+    rowsHistory.forEach(function (rowArray) {
+        var rowThread = rowArray.join(",");
+        csvThreads += rowThread + "\r\n";
+    });
 
-    link.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
+    var encodedUriThreads = encodeURI(csvThreads);
+    var encodedUriHistory = encodeURI(csvHistory);
+    var linkThreads = document.createElement("a");
+    var linkHistory = document.createElement("a");
+    linkThreads.setAttribute("href", encodedUriThreads);
+    linkThreads.setAttribute("download", "threads-" + data[0].ownerIdentity + ".csv");
+    linkHistory.setAttribute("href", encodedUriHistory);
+    linkHistory.setAttribute("download", "chat-history.csv");
+    document.body.appendChild(linkThreads, linkHistory);
+
+    linkThreads.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
+    linkHistory.click();
 }
 
 //Pega as linhas da tabela que foram selecionadas
@@ -233,42 +260,55 @@ function create_zip() {
     location.href = "data:application/zip;base64," + content;
 }
 
-function getUserSource(userId){
-    var source = userId.split("@"); 
+function getUserSource(userId) {
+    var source = userId.split("@");
     var channel = source[1].split(".");
-    var userChannel = channel[0].charAt(0).toUpperCase() + 
-    channel[0].slice(1);
-        if (userChannel == "0mn"){
-            return "BLiP Chat";
-        }else{
-            return userChannel;
-        }
+    var userChannel = channel[0].charAt(0).toUpperCase() +
+        channel[0].slice(1);
+    if (userChannel == "0mn") {
+        return "BLiP Chat";
+    } else {
+        return userChannel;
+    }
 }
 
 
 function filter() {
-  // Declare variables
-  var initialDate, finalDate, table, tr, td, i, txtValue;
-  initialDate = document.getElementById("initial").value;
-  finalDate = document.getElementById("final").value;
-  initialDate = new Date(initialDate).getTime();
-  finalDate = new Date(finalDate).getTime();
-  table = document.getElementById("bp-table");
-  tr = table.getElementsByTagName("tr");
+    // Declare variables
+    var initialDate, finalDate, table, tr, td, i, txtValue;
+    initialDate = document.getElementById("initial").value;
+    finalDate = document.getElementById("final").value;
+    initialDate = new Date(initialDate).getTime();
+    finalDate = new Date(finalDate).getTime();
+    table = document.getElementById("bp-table");
+    tr = table.getElementsByTagName("tr");
 
-  // Loop through all table rows, and hide those who don't match the search query
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[4];
-    if (td) {
-      txtValue = td.textContent || td.innerText;
-      console.log(txtValue);
-      txtValue = new Date(txtValue).getTime();
-      console.log(txtValue);
-      if ((txtValue > initialDate) && (txtValue < finalDate)) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[4];
+        if (td) {
+            txtValue = td.textContent || td.innerText;
+            console.log(txtValue);
+            txtValue = new Date(txtValue).getTime();
+            console.log(txtValue);
+            if ((txtValue >= initialDate) && (txtValue <= finalDate)) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
     }
-  }
+}
+
+function getUserMessages(userId) {
+    return axios.post('https://msging.net/commands', {
+        id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
+        method: "get",
+        uri: "/threads/" + userId
+    }, {
+        headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+        }
+    });
 }
