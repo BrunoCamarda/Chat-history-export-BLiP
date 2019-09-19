@@ -2,7 +2,20 @@ var lastDate;
 var dates = [];
 var data;
 var token;
-var rowPosition = 0;
+var rowPosition = 1;
+const rowsHistory = [
+    ["User ID", "Message ID", "Direction", "Date", "Type", "Content"]
+];
+let csvHistory;
+//let csvHistory = "data:text/csv;charset=utf-8,";
+var firstRowHistory = rowsHistory[0].join(",");
+if (firstRowHistory != "undefined") {
+    csvHistory += firstRowHistory + "\r\n";
+}
+var botId;
+var zip = new JSZip();
+
+
 //Requisicao 
 function getInfo() {
     document.getElementById("loader").style.display = "block";
@@ -99,7 +112,7 @@ function createTable(user, i) {
         td.innerHTML = dates[i];
 
         td = tr.insertCell(tr.cells.length);
-        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>Ver</button>";
+        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>";
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
@@ -116,7 +129,10 @@ function createTable(user, i) {
     document.getElementsByClassName('form-date')[0].style.display = "block";
 }
 
+
+//Abrir e mostrar historico de mensagens usando o BLiP Components (VUE.js)
 function openHistory(item) {
+    //TODO 
     console.log(item.id);
 }
 
@@ -169,14 +185,14 @@ function enableExport() {
     }
 }
 
+
 function exportCsv() {
     var checked = getElementsSelecteds();
     const rowsThreads = [
-        ["ID do usuário", "Canal"]
+        ["User Id", "Channel"]
     ];
-    const rowsHistory = [
-        ["Id do usuário", "Id da mensagem", "Direção", "Data", "Tipo", "Conteúdo"]
-    ];
+
+    var promises = [];
 
     checked.forEach(function (userId, index) {
         //arquivo de threads
@@ -184,47 +200,71 @@ function exportCsv() {
         rowsThreads[index + 1].push(userId); //id do usuario
         rowsThreads[index + 1].push(getUserSource(userId)); //canal do usuario
 
-        //arquivo de historico
-        getUserMessages(userId).then(function (response) {
-            rowsHistory[rowPosition + 1] = [];
-            rowsHistory[rowPosition + 1].push(userId);
-            response.data.resource.items.forEach(function (message) {
-                rowsHistory[rowPosition + 1].push(message.id);
-                rowsHistory[rowPosition + 1].push(message.direction);
-                rowsHistory[rowPosition + 1].push(message.date);
-                rowsHistory[rowPosition + 1].push(message.type);
-                rowsHistory[rowPosition + 1].push(message.content);
-                rowPosition++;
-                rowsHistory[rowPosition + 1] = [];
-            });
-        });
+        promises.push(getUserMessages(userId));
     });
 
-    let csvThreads = "data:text/csv;charset=utf-8,";
-    let csvHistory = "data:text/csv;charset=utf-8,";
+    Promise.all(promises)
+        .then(function (allValues) {
 
+            allValues.forEach(function (value) {
+                //messages de um usuário
+                var message = value.messages;
+                var userId = value.userId;
+                //completar um array
+                message.forEach(function (msg) {
+                    rowsHistory[rowPosition] = [];
+                    rowsHistory[rowPosition].push(userId);
+                    rowsHistory[rowPosition].push(msg.id);
+                    rowsHistory[rowPosition].push(msg.direction);
+                    rowsHistory[rowPosition].push(msg.date);
+                    rowsHistory[rowPosition].push(msg.type);
+                    if (msg.type.includes("application")) {
+                        rowsHistory[rowPosition].push(JSON.stringify(msg.content));
+                    } else {
+                        rowsHistory[rowPosition].push(msg.content);
+                    }
+                    var rowHistory = rowsHistory[rowPosition].join(",");
+                    csvHistory += rowHistory + "\r\n";
+                    rowPosition++;
+                });
+            });
+
+            //usar o array pra criar um arquivo
+            var encodedUriHistory = encodeURI(csvHistory);
+            var linkHistory = document.createElement("a");
+            linkHistory.setAttribute("href", encodedUriHistory);
+            linkHistory.setAttribute("download", "chat-history-" + botId + ".csv");
+            document.body.appendChild(linkHistory);
+
+            zip.file("chat-history-" + botId + ".csv", csvHistory);
+
+
+            zip.generateAsync({ type: "base64" }).then(function (base64) {
+                window.location = "data:application/zip;base64," + base64;
+            });
+
+
+        });
+
+    let csvThreads;
+    //let csvThreads = "data:text/csv;charset=utf-8,";
     rowsThreads.forEach(function (rowArray) {
         var rowThread = rowArray.join(",");
         csvThreads += rowThread + "\r\n";
     });
 
-    rowsHistory.forEach(function (rowArray) {
-        var rowThread = rowArray.join(",");
-        csvThreads += rowThread + "\r\n";
-    });
 
     var encodedUriThreads = encodeURI(csvThreads);
-    var encodedUriHistory = encodeURI(csvHistory);
     var linkThreads = document.createElement("a");
-    var linkHistory = document.createElement("a");
     linkThreads.setAttribute("href", encodedUriThreads);
     linkThreads.setAttribute("download", "threads-" + data[0].ownerIdentity + ".csv");
-    linkHistory.setAttribute("href", encodedUriHistory);
-    linkHistory.setAttribute("download", "chat-history.csv");
-    document.body.appendChild(linkThreads, linkHistory);
+    botId = data[0].ownerIdentity;
 
-    linkThreads.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
-    linkHistory.click();
+    document.body.appendChild(linkThreads);
+    zip.file("threads-" + data[0].ownerIdentity + ".csv", csvThreads);
+    console.log(zip);
+    //linkThreads.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
+
 }
 
 //Pega as linhas da tabela que foram selecionadas
@@ -301,14 +341,25 @@ function filter() {
 }
 
 function getUserMessages(userId) {
-    return axios.post('https://msging.net/commands', {
-        id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
-        method: "get",
-        uri: "/threads/" + userId
-    }, {
-        headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
+    return new Promise(
+        function (resolve, reject) {
+            axios.post('https://msging.net/commands', {
+                id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
+                method: "get",
+                uri: "/threads/" + userId
+            }, {
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                }
+            }).then(function (response) {
+                return resolve({
+                    userId: userId,
+                    messages: response.data.resource.items
+                });
+            }).catch(function (err) {
+                return reject(err);
+            });
         }
-    });
+    );
 }

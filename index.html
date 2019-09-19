@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="custom.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
     <script type="text/javascript" 
-        src="https://unpkg.com/browse/jszip@3.1.5/dist/jszip.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="https://unpkg.com/blip-cards@1.55.11/dist/blip-cards.js"></script>
+        src="https://unpkg.com/jszip@3.1.5/dist/jszip.js"></script>
+   <!--  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/blip-cards@1.55.11/dist/blip-cards.js"></script> -->
     <script src="functions.js"></script>
 </head>
 
@@ -20,13 +20,13 @@
 
     <div class="rectangle-main">
         <img class="main-logo" src="images/logo-BLiP.png"></img>
-        <p class="main-title">Visualizador de conversas</p>
-        <p class="main-subtitle">Encontre e exporte o histórico de conversas de seus contatos</p>
+        <p class="main-title">Conversations viewer</p>
+        <p class="main-subtitle">Find and export your contacts' conversation history</p>
         <center>
-            <label class="label-token" for="token">Token do bot</label><br>
+            <label class="label-token" for="token">Bot's token</label><br>
             <input class="input-token" required onkeyup="stoppedTyping(this)" type="text" id="token" name="token"
                 placeholder="Ex.: 4tcvr8q4a6nypaq7">
-            <button class="bp-btn bp-btn--blip-dark" disabled id="b-visualizar" onclick="getInfo()">Visualizar</button>
+            <button class="bp-btn bp-btn--blip-dark" disabled id="b-visualizar" onclick="getInfo()">Search</button>
             <br><br><br>
     </div>
 
@@ -35,22 +35,22 @@
     <div style="display:none;" id="page-content">
 
         <div class="form-date" style="display: none;">
-            <h3>Filtrar por data</h3>
+            <h3>Filter by date</h3>
             <input type="date" class="input-date" id="initial" name="initial">
-            a
+            to
             <input type="date" class="input-date" id="final" name="final">
-            <button class="bp-btn bp-btn--blip-light bp-btn--small" id="b-filtrar" onclick="filter()">Filtrar</button>
+            <button class="bp-btn bp-btn--blip-light bp-btn--small" id="b-filtrar" onclick="filter()">Filter</button>
         </div>
 
         <table class="bp-table" id="bp-table" style="display: none">
             <thead>
                 <tr>
                     <th class="tl"></th>
-                    <th class="tc"><b>Nome</b></th>
-                    <th class="tr"><b>Canal</b></th>
-                    <th class="tl"><b>Identificador</b></th>
-                    <th class="tc"><b>Data</b></th>
-                    <th class="tl"><b>Ações</b></th>
+                    <th class="tc"><b>Name</b></th>
+                    <th class="tr"><b>Channel</b></th>
+                    <th class="tl"><b>User ID</b></th>
+                    <th class="tc"><b>Date</b></th>
+                    <th class="tl"><b>Actions</b></th>
                     <th class="tr"> <label class="bp-input--check--wrapper mb4">
                         <br><input class="bp-input" type="checkbox" onClick="toggle(this)" name="checkbox-all">
                         <div class="bp-input--checkbox">&check;</div>
@@ -65,7 +65,7 @@
         </center>
 
         <div class="export-button">
-            <button class="bp-btn bp-btn--true" id="b-exportar" onClick="exportCsv()" style="display: none;">Exportar</button>
+            <button class="bp-btn bp-btn--true" id="b-exportar" onClick="exportCsv()" style="display: none;">Export</button>
         </div>
     </div>
 
