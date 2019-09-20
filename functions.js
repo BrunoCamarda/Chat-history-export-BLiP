@@ -111,12 +111,12 @@ function createTable(user, i) {
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = dates[i];
 
-       /*  td = tr.insertCell(tr.cells.length);
-        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>"; */
+        /*  td = tr.insertCell(tr.cells.length);
+         td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>"; */
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
-            "<input class='bp-input' type='checkbox' onchange='enableExport()' name='checkbox-group' value=" + data[i].identity + ">" +
+            "<input class='bp-input' type='checkbox' onchange='enableExport()' id=row-" + tr.rowIndex + " name='checkbox-group' value=" + data[i].identity + ">" +
             "<div class='bp-input--checkbox'>&check;</div>" +
             "</label>";
 
@@ -141,8 +141,12 @@ function openHistory(item) {
 //seleciona todos os checkboxes ao clicar no principal
 function toggle(source) {
     checkboxes = document.getElementsByName('checkbox-group');
+    table = document.getElementById("bp-table");
+    rows = table.getElementsByTagName("tr");
     for (var i = 0, n = checkboxes.length; i < n; i++) {
-        checkboxes[i].checked = source.checked;
+        if (rows[i + 1].style.display !="none") {
+            checkboxes[i].checked = source.checked;
+        }
     }
     enableExport();
 }
@@ -256,7 +260,7 @@ function exportCsv() {
 
     document.body.appendChild(linkThreads);
     zip.file("threads-" + data[0].ownerIdentity + ".csv", csvThreads); //adiciona o arquivo threads ao .zip
-    
+
 
 }
 
@@ -321,7 +325,7 @@ function filter() {
     tr = table.getElementsByTagName("tr");
 
     // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
+    for (i = 1; i < tr.length; i++) {
         td = tr[i].getElementsByTagName("td")[4];
         if (td) {
             txtValue = td.textContent || td.innerText;
@@ -329,13 +333,11 @@ function filter() {
             txtValue.setHours(23);
             txtValue.setMinutes(59);
             txtValue.setSeconds(59);
-            console.log(txtValue);
-            console.log("Initial" + initialDate);
-            console.log("Final" + finalDate)
             if ((txtValue >= initialDate) && (txtValue <= finalDate)) {
                 tr[i].style.display = "";
             } else {
                 tr[i].style.display = "none";
+                document.getElementById("row-" + i).checked = false;
             }
         }
     }
