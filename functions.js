@@ -111,8 +111,8 @@ function createTable(user, i) {
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = dates[i];
 
-        td = tr.insertCell(tr.cells.length);
-        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>";
+       /*  td = tr.insertCell(tr.cells.length);
+        td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>"; */
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
@@ -159,7 +159,7 @@ function createDate(lastDate) {
     if (mm < 10) {
         mm = '0' + mm;
     }
-    var formatedDate = dd + '/' + mm + '/' + yyyy;
+    var formatedDate = mm + '/' + dd + '/' + yyyy;
     dates.push(formatedDate);
     return dates;
 }
@@ -230,12 +230,6 @@ function exportCsv() {
             });
 
             //usar o array pra criar um arquivo
-            var encodedUriHistory = encodeURI(csvHistory);
-            var linkHistory = document.createElement("a");
-            linkHistory.setAttribute("href", encodedUriHistory);
-            linkHistory.setAttribute("download", "chat-history-" + botId + ".csv");
-            document.body.appendChild(linkHistory);
-
             zip.file("chat-history-" + botId + ".csv", csvHistory);
 
 
@@ -261,9 +255,8 @@ function exportCsv() {
     botId = data[0].ownerIdentity;
 
     document.body.appendChild(linkThreads);
-    zip.file("threads-" + data[0].ownerIdentity + ".csv", csvThreads);
-    console.log(zip);
-    //linkThreads.click(); // Isso ira gerar o donwload do arquivo com o nome "{idBot}.csv".
+    zip.file("threads-" + data[0].ownerIdentity + ".csv", csvThreads); //adiciona o arquivo threads ao .zip
+    
 
 }
 
@@ -314,12 +307,16 @@ function getUserSource(userId) {
 
 
 function filter() {
-    // Declare variables
     var initialDate, finalDate, table, tr, td, i, txtValue;
     initialDate = document.getElementById("initial").value;
     finalDate = document.getElementById("final").value;
-    initialDate = new Date(initialDate).getTime();
-    finalDate = new Date(finalDate).getTime();
+    initialDate = new Date(initialDate);
+    finalDate = new Date(finalDate);
+    initialDate.setDate(initialDate.getDate() + 1);
+    finalDate.setDate(finalDate.getDate() + 1);
+    finalDate.setHours(23);
+    finalDate.setMinutes(59);
+    finalDate.setSeconds(59);
     table = document.getElementById("bp-table");
     tr = table.getElementsByTagName("tr");
 
@@ -328,9 +325,13 @@ function filter() {
         td = tr[i].getElementsByTagName("td")[4];
         if (td) {
             txtValue = td.textContent || td.innerText;
+            txtValue = new Date(txtValue);
+            txtValue.setHours(23);
+            txtValue.setMinutes(59);
+            txtValue.setSeconds(59);
             console.log(txtValue);
-            txtValue = new Date(txtValue).getTime();
-            console.log(txtValue);
+            console.log("Initial" + initialDate);
+            console.log("Final" + finalDate)
             if ((txtValue >= initialDate) && (txtValue <= finalDate)) {
                 tr[i].style.display = "";
             } else {
