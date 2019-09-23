@@ -7906,7 +7906,7 @@
 .input-date:nth-of-type(1) {
   border: 1px solid #d2dfe6;
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #8ca0b3;
   background-color: #ffffff;
   padding: 12px 20px 13px 40px;
@@ -7918,7 +7918,7 @@
 .input-date:nth-of-type(2) {
   border: 1px solid #d2dfe6;
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #8ca0b3;
   background-color: #ffffff;
   padding: 12px 20px 13px 40px;
@@ -7982,4 +7982,26 @@ body {
 #page-content {
   display: none;
   text-align: center;
+}
+
+.filter-label {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: bold;
+  color: #52636c;
+  font-size: 1.25rem;
+  line-height: 200%;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.filter-label {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: bold;
+  color: #52636c;
+  font-size: 1.10rem;
+  line-height: 200%;
+  text-align: center;
+  margin-top: 10px;
 }
