@@ -1,3 +1,4 @@
+//Create global variables
 var lastDate;
 var dates = [];
 var data;
@@ -7,7 +8,6 @@ const rowsHistory = [
     ["User ID", "Message ID", "Direction", "Date", "Type", "Content"]
 ];
 let csvHistory;
-//let csvHistory = "data:text/csv;charset=utf-8,";
 var firstRowHistory = rowsHistory[0].join(",");
 if (firstRowHistory != "undefined") {
     csvHistory += firstRowHistory + "\r\n";
@@ -16,7 +16,7 @@ var botId;
 var zip = new JSZip();
 
 
-//Requisicao 
+//Request 
 function getInfo() {
     document.getElementById("loader").style.display = "block";
     token = document.getElementById('token').value;
@@ -33,13 +33,13 @@ function getInfo() {
             'Content-Type': 'application/json'
         }
     }).then(function (response) {
-        data = response.data.resource.items; //armazena apenas as threads
-        data = data.sort(function (a, b) { //ordena por data
+        data = response.data.resource.items; //Get only threads
+        data = data.sort(function (a, b) { //Order by date
             return new Date(b.lastMessage.date) - new Date(a.lastMessage.date);
         });
-        separateThreads(data); //Chama a funcao para criar a tabela
+        separateThreads(data); //Call a function to create the table
     })
-        //Retorna uma mensagem de erro caso a requisicao esteja errada
+        //Return a error if theres something wrong
         .catch(function (error) {
             if (error.response) {
                 document.getElementById("loader").style.display = "none";
@@ -52,7 +52,7 @@ function getInfo() {
         });
 }
 
-//Analisa cada thread separadamente e cruza as informacoes para receber os dados do contato
+//Parses each thread separately and crosses information to receive contact data
 function separateThreads(data) {
     for (var i = 0; i < data.length; i++) {
         lastDate = new Date(data[i].lastMessage.date);
@@ -61,7 +61,7 @@ function separateThreads(data) {
     }
 }
 
-//chama a Extensao Contacts para pegar dados do Contato e criar uma tabela
+//Call the Contacts extension to get contact data and create table
 function getUserInfoToCreateTable(user, i) {
     axios.post('https://msging.net/commands', {
         id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
@@ -81,7 +81,7 @@ function getUserInfoToCreateTable(user, i) {
     });
 }
 
-//Cria a tabela, remove o "loading" e faz os componentes aparecerem na tela
+//Create the table, remove the "loading" e shows components
 function createTable(user, i) {
     var tr, td;
     var tbody = document.getElementById("data");
@@ -130,15 +130,14 @@ function createTable(user, i) {
 }
 
 
-//Abrir e mostrar historico de mensagens usando o BLiP Components (VUE.js)
+//Open the chat history using the BLiP Components (VUE.js)
 function openHistory(item) {
     //TODO 
-    console.log(item.id);
 }
 
 
 
-//seleciona todos os checkboxes ao clicar no principal
+//Select all the checkboxes when checking the main
 function toggle(source) {
     checkboxes = document.getElementsByName('checkbox-group');
     table = document.getElementById("bp-table");
@@ -151,7 +150,7 @@ function toggle(source) {
     enableExport();
 }
 
-//formata a data para o padrao brasileiro
+//Date format
 function createDate(lastDate) {
     var dd = lastDate.getDate();
     var mm = lastDate.getMonth() + 1; //January is 0!
@@ -168,7 +167,7 @@ function createDate(lastDate) {
     return dates;
 }
 
-//habilita ou desabilita o botao de visualizar caso haja ou nao um token no input
+//Enable or disable the preview button whether or not there is a token in the input
 function stoppedTyping(input) {
     if (input.value.length > 0) {
         document.getElementById('b-visualizar').disabled = false;
@@ -177,7 +176,7 @@ function stoppedTyping(input) {
     }
 }
 
-//habilita e desabilita o botão de exportar caso haja pelo menos um checkbox selecionado
+//Enable or disable the export button if there is a checkbox checked
 function enableExport() {
     var checkboxes = document.getElementsByName('checkbox-group');
     var checkedOne = Array.prototype.slice.call(checkboxes).some(x => x.checked);
@@ -189,7 +188,7 @@ function enableExport() {
     }
 }
 
-
+//Create the .csv files and put them into the .zip file
 function exportCsv() {
     var checked = getElementsSelecteds();
     const rowsThreads = [
@@ -199,7 +198,7 @@ function exportCsv() {
     var promises = [];
 
     checked.forEach(function (userId, index) {
-        //arquivo de threads
+        //threads file
         rowsThreads[index + 1] = [];
         rowsThreads[index + 1].push(userId); //id do usuario
         rowsThreads[index + 1].push(getUserSource(userId)); //canal do usuario
@@ -211,10 +210,10 @@ function exportCsv() {
         .then(function (allValues) {
 
             allValues.forEach(function (value) {
-                //messages de um usuário
+                //messages froma user
                 var message = value.messages;
                 var userId = value.userId;
-                //completar um array
+                //fill the array and create the history file
                 message.forEach(function (msg) {
                     rowsHistory[rowPosition] = [];
                     rowsHistory[rowPosition].push(userId);
@@ -233,10 +232,10 @@ function exportCsv() {
                 });
             });
 
-            //usar o array pra criar um arquivo
             zip.file("chat-history-" + botId + ".csv", csvHistory);
 
 
+            //download file
             zip.generateAsync({ type: "base64" }).then(function (base64) {
                 window.location = "data:application/zip;base64," + base64;
             });
@@ -245,7 +244,6 @@ function exportCsv() {
         });
 
     let csvThreads;
-    //let csvThreads = "data:text/csv;charset=utf-8,";
     rowsThreads.forEach(function (rowArray) {
         var rowThread = rowArray.join(",");
         csvThreads += rowThread + "\r\n";
@@ -264,7 +262,7 @@ function exportCsv() {
 
 }
 
-//Pega as linhas da tabela que foram selecionadas
+//Get the rows wich there are checkboxes checked
 function getElementsSelecteds() {
     var checkedValue = [];
     var checkedElements = document.getElementsByName('checkbox-group');
@@ -274,27 +272,6 @@ function getElementsSelecteds() {
         }
     }
     return checkedValue;
-}
-
-function getUserInfo(userId) {
-    return axios.post('https://msging.net/commands', {
-        id: (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase(),
-        method: "get",
-        uri: "/contacts/" + userId
-    }, {
-        headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-        }
-    });
-}
-
-function create_zip() {
-    var zip = new JSZip();
-    zip.add("hello1.txt", "Hello First World\n");
-    zip.add("hello2.txt", "Hello Second World\n");
-    content = zip.generate();
-    location.href = "data:application/zip;base64," + content;
 }
 
 function getUserSource(userId) {
@@ -309,7 +286,7 @@ function getUserSource(userId) {
     }
 }
 
-
+//filter by date
 function filter() {
     var initialDate, finalDate, table, tr, td, i, txtValue;
     initialDate = document.getElementById("initial").value;
@@ -343,6 +320,7 @@ function filter() {
     }
 }
 
+//get users messages
 function getUserMessages(userId) {
     return new Promise(
         function (resolve, reject) {
