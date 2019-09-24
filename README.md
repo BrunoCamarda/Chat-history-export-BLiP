@@ -1,18 +1,23 @@
-## Tela de Histórico de Conversas - BLiP 
+## Conversations viewer - BLiP 
 
-Visualize e exporte o histórico de threads e conversas de seus contatos no seu Chatbot.
+*This is an example of how to use the [BLiP Chat History extension](https://docs.blip.ai/#chat-history) API*
 
-
-### Instruções: 
-
-1. Informe o token do bot
-    1. Para encontrar o token, vá até o [Portal do BLiP](https://portal.blip.ai/)
-    2. Selecione o seu bot
-    3. Acesse o menu de **Configurações**
-    4. Vá para a aba **Informações de Conexão**
-    5. Copie, na sessão **Endpoints HTTP**, a chave de autorização (**Authorization**).
- 1. Clique em visualizar e aguarde o carregamento da página
- 2. Filtre por data inicial e final (*Opcional*)
- 3. Selecione quais threads quer exportar e clique no botão **Exportar
+Find and export your contacts' conversation history and threads.
 
 
+![Page example](images/example.png)
+
+### Instructions: 
+
+1. Enter bot token (Header authentication - Authorization )
+    1. To find your token, go to [BLiP portal](https://portal.blip.ai/)
+    2. Select your bot
+    3. Access the **Configurations** menu.
+    4. Go to the **Connection information** tab
+    5. Copy (at **HTTP Endpoints** session) the Header authentication - Authorization key.
+2. Click *search* and wait for the page to load
+3. Filter by start and end date (*Optional*)
+4. Select wich threads you want to export and click *Export button* at the bottom of the page.
+5. You will receive a .zip file with two .csv files:
+    * A chat-history-{botId}.csv containing message history
+    * A threads-{botId}.csv containing threads information
