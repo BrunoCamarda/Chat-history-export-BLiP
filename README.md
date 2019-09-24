@@ -2,7 +2,7 @@
 
 *This is an example of how to use the [BLiP Chat History extension](https://docs.blip.ai/#chat-history) API*
 
-Visit the sample page [here](https://history-blip.herokuapp.com/). 
+Visit the sample page [here](https://history-blip.herokuapp.com/).
 
 Find and export your contacts' conversation history and threads.
 
