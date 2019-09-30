@@ -9,15 +9,19 @@ const rowsHistory = [
 ];
 let csvHistory;
 var firstRowHistory = rowsHistory[0].join(",");
-if (firstRowHistory != "undefined") {
-    csvHistory += firstRowHistory + "\r\n";
-}
 var botId;
 var zip = new JSZip();
-
+var objJson = [];
+var prevButton;
+var nextButton;
+var clickPageNumber = document.querySelectorAll('.clickPageNumber');
+let current_page = 1;
+let records_per_page = 15;
 
 //Request 
 function getInfo() {
+    prevButton = document.getElementById('button_prev');
+    nextButton = document.getElementById('button_next');
     document.getElementById("loader").style.display = "block";
     token = document.getElementById('token').value;
     var input = document.getElementById('token');
@@ -43,13 +47,18 @@ function getInfo() {
         .catch(function (error) {
             if (error.response) {
                 document.getElementById("loader").style.display = "none";
-                alert("Token inserido é inválido!");
+                alert("Invalid token");
             } else if (error.request) {
                 console.log(error.request);
+                document.getElementById("loader").style.display = "none";
+                alert("Request problem!! :(");
             } else {
                 console.log('Error', error.message);
+                document.getElementById("loader").style.display = "none";
+                alert("Request problem!! :(");
             }
         });
+
 }
 
 //Parses each thread separately and crosses information to receive contact data
@@ -59,7 +68,123 @@ function separateThreads(data) {
         createDate(lastDate);
         getUserInfoToCreateTable(data[i].identity, i);
     }
+    setTimeout(function () {
+        changePage(1);
+        pageNumbers();
+        selectedPage();
+        clickPage();
+        addEventListeners();
+    }, 3000);
+
 }
+
+function addEventListeners() {
+    prevButton.addEventListener('click', prevPage);
+    nextButton.addEventListener('click', nextPage);
+}
+
+function selectedPage() {
+    let page_number = document.getElementById('page_number').getElementsByClassName('clickPageNumber');
+    for (let i = 0; i < page_number.length; i++) {
+        if (i == current_page - 1) {
+            page_number[i].style.opacity = "1.0";
+        }
+        else {
+            page_number[i].style.opacity = "0.5";
+        }
+    }
+}
+
+function checkButtonOpacity() {
+    current_page == 1 ? prevButton.classList.add('opacity') : prevButton.classList.remove('opacity');
+    current_page == numPages() ? nextButton.classList.add('opacity') : nextButton.classList.remove('opacity');
+}
+
+function changePage(page) {
+    var tr, td;
+    var tbody = document.getElementById("data");
+    tbody.innerHTML = "";
+    if (page < 1) {
+        page = 1;
+    }
+    if (page > (numPages() - 1)) {
+        page = numPages();
+    }
+
+    if (objJson.length > 0) {
+        for (var i = (page - 1) * records_per_page; i < (page * records_per_page) && i < objJson.length; i++) {
+            tr = tbody.insertRow(-1);
+            td = tr.insertCell(tr.cells.length);
+            td.innerHTML = "<img src=" + objJson[i][0] + ">";
+
+            td = tr.insertCell(tr.cells.length);
+            td.innerHTML = "<strong>" + objJson[i][1] + "</strong>";
+
+            td = tr.insertCell(tr.cells.length);
+            td.innerHTML = objJson[i][2];
+
+            td = tr.insertCell(tr.cells.length);
+            td.innerHTML = objJson[i][3];
+
+            td = tr.insertCell(tr.cells.length);
+            td.innerHTML = objJson[i][4];
+
+            /*  td = tr.insertCell(tr.cells.length);
+             td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>"; */
+
+            td = tr.insertCell(tr.cells.length);
+            td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
+                "<input class='bp-input' type='checkbox' onchange='enableExport()' id=row-" + tr.rowIndex + " name='checkbox-group' value=" + objJson[i][3] + ">" +
+                "<div class='bp-input--checkbox'>&check;</div>" +
+                "</label>";
+        }
+    }
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("page-content").style.display = "block";
+    document.getElementById('bp-table').style.display = "table";
+    document.getElementById('b-exportar').style.display = "initial";
+    document.getElementById('b-exportar').disabled = true;
+    document.getElementsByClassName('form-date')[0].style.display = "block";
+    checkButtonOpacity();
+    selectedPage();
+}
+
+function prevPage() {
+    if (current_page > 1) {
+        current_page--;
+        changePage(current_page);
+    }
+}
+
+function nextPage() {
+    if (current_page < numPages()) {
+        current_page++;
+        changePage(current_page);
+    }
+}
+
+function clickPage() {
+    document.addEventListener('click', function (e) {
+        if (e.target.nodeName == "SPAN" && e.target.classList.contains("clickPageNumber")) {
+            current_page = e.target.textContent;
+            changePage(current_page);
+        }
+    });
+}
+
+function pageNumbers() {
+    let pageNumber = document.getElementById('page_number');
+    pageNumber.innerHTML = "";
+
+    for (let i = 1; i < numPages() + 1; i++) {
+        pageNumber.innerHTML += "<span class='clickPageNumber'>" + i + "</span>";
+    }
+}
+
+function numPages() {
+    return Math.ceil(objJson.length / records_per_page);
+}
+
 
 //Call the Contacts extension to get contact data and create table
 function getUserInfoToCreateTable(user, i) {
@@ -76,9 +201,37 @@ function getUserInfoToCreateTable(user, i) {
         if (response.data.status == "failure") {
         } else {
             let user = response.data.resource;
-            createTable(user, i);
+            createObj(user, i);
         }
     });
+
+}
+//}
+
+
+function createObj(user, i) {
+    if (user) {
+        objJson[i] = [];
+        if (user.photoUri) {
+            objJson[i].push(user.photoUri);
+        } else {
+            objJson[i].push("https://portal.blip.ai/fonts/UserNone.svg?7d8dc449af6584f485785babbad366d0");
+        }
+
+        if (typeof (user.name) != "undefined") {
+            objJson[i].push(user.name);
+        }
+        if (user.source == "0mn.io") {
+            objJson[i].push("BLiP Chat");
+        } else {
+            objJson[i].push(user.source);
+        }
+        objJson[i].push(user.identity);
+
+        objJson[i].push(dates[i]);
+
+        objJson[i].push(data[i].identity);
+    }
 }
 
 //Create the table, remove the "loading" e shows components
@@ -116,7 +269,7 @@ function createTable(user, i) {
 
         td = tr.insertCell(tr.cells.length);
         td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
-            "<input class='bp-input' type='checkbox' onchange='enableExport()' id=row-" + tr.rowIndex + " name='checkbox-group' value=" + data[i].identity + ">" +
+            "<input class='bp-input' type='checkbox' onchange='enableExport()' id=row-" + tr.rowIndex + " name='checkbox-group' value=" + user.identity + ">" +
             "<div class='bp-input--checkbox'>&check;</div>" +
             "</label>";
 
@@ -143,7 +296,7 @@ function toggle(source) {
     table = document.getElementById("bp-table");
     rows = table.getElementsByTagName("tr");
     for (var i = 0, n = checkboxes.length; i < n; i++) {
-        if (rows[i + 1].style.display !="none") {
+        if (rows[i + 1].style.display != "none") {
             checkboxes[i].checked = source.checked;
         }
     }
@@ -344,3 +497,4 @@ function getUserMessages(userId) {
         }
     );
 }
+

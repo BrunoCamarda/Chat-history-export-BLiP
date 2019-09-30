@@ -8005,3 +8005,19 @@ body {
   text-align: center;
   margin-top: 10px;
 }
+
+.clickPageNumber{
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: bold;
+  color: #00d0ed;
+  font-size: 1.25rem;
+  line-height: 200%;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.clickPageNumber:hover{
+  color: #000000;
+  cursor: pointer;
+}
