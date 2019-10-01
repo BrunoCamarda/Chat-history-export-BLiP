@@ -113,30 +113,32 @@ function changePage(page) {
 
     if (objJson.length > 0) {
         for (var i = (page - 1) * records_per_page; i < (page * records_per_page) && i < objJson.length; i++) {
-            tr = tbody.insertRow(-1);
-            td = tr.insertCell(tr.cells.length);
-            td.innerHTML = "<img src=" + objJson[i][0] + ">";
+            if (objJson[i]) {
+                tr = tbody.insertRow(-1);
+                td = tr.insertCell(tr.cells.length);
+                td.innerHTML = "<img src=" + objJson[i][0] + ">";
 
-            td = tr.insertCell(tr.cells.length);
-            td.innerHTML = "<strong>" + objJson[i][1] + "</strong>";
+                td = tr.insertCell(tr.cells.length);
+                td.innerHTML = "<strong>" + objJson[i][1] + "</strong>";
 
-            td = tr.insertCell(tr.cells.length);
-            td.innerHTML = objJson[i][2];
+                td = tr.insertCell(tr.cells.length);
+                td.innerHTML = objJson[i][2];
 
-            td = tr.insertCell(tr.cells.length);
-            td.innerHTML = objJson[i][3];
+                td = tr.insertCell(tr.cells.length);
+                td.innerHTML = objJson[i][3];
 
-            td = tr.insertCell(tr.cells.length);
-            td.innerHTML = objJson[i][4];
+                td = tr.insertCell(tr.cells.length);
+                td.innerHTML = objJson[i][4];
 
-            /*  td = tr.insertCell(tr.cells.length);
-             td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>"; */
+                /*  td = tr.insertCell(tr.cells.length);
+                 td.innerHTML = "<button class='bp-btn bp-btn--bot bp-btn--small' id=" + data[i].identity + " onClick='openHistory(this)'>See more</button>"; */
 
-            td = tr.insertCell(tr.cells.length);
-            td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
-                "<input class='bp-input' type='checkbox' onchange='enableExport()' id=row-" + tr.rowIndex + " name='checkbox-group' value=" + objJson[i][3] + ">" +
-                "<div class='bp-input--checkbox'>&check;</div>" +
-                "</label>";
+                td = tr.insertCell(tr.cells.length);
+                td.innerHTML = "<label class='bp-input--check--wrapper mb4'>" +
+                    "<input class='bp-input' type='checkbox' onchange='enableExport()' id=row-" + tr.rowIndex + " name='checkbox-group' value=" + objJson[i][3] + ">" +
+                    "<div class='bp-input--checkbox'>&check;</div>" +
+                    "</label>";
+            }
         }
     }
     document.getElementById("loader").style.display = "none";
