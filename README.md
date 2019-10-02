@@ -8,7 +8,7 @@ Find and export your contacts' conversation history and threads.
 
 ![Page example](images/example.png)
 
-### Instructions: 
+### Instructions
 
 1. Enter bot token (Header authentication - Authorization )
     1. To find your token, go to [BLiP portal](https://portal.blip.ai/)
@@ -22,3 +22,11 @@ Find and export your contacts' conversation history and threads.
 5. You will receive a .zip file with two .csv files:
     * A chat-history-{botId}.csv containing message history
     * A threads-{botId}.csv containing threads information
+
+
+### Future Work
+- [ ] Add runtime pagination
+- [ ] Improve CSS styles
+- [ ] Add a way to open the chat history with [BLiP Components](https://github.com/takenet/blip-cards-vue-components)
+- [ ] Add sort
+- [ ] Add other filter options
